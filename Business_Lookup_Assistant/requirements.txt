@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sentence-transformers
+scikit-learn
+langchain
+transformers
+torch
+psutil
+accelerate
