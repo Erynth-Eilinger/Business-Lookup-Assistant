@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Business Lookup Assistant</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      color: #333;
+    }
+    form {
+      margin-bottom: 1.5rem;
+    }
+    input[type="text"] {
+      padding: 0.5rem;
+      width: 300px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      margin-left: 0.5rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .result-card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .follow-up {
+      margin-top: 2rem;
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <h1>Business Lookup Assistant</h1>
+  <form id="queryForm">
+    <input type="text" id="queryInput" placeholder="e.g., Find vegan cafes near Bondi" required>
+    <button type="submit">Search</button>
+  </form>
+
+  <div id="results"></div>
+
+  <script>
+    const form = document.getElementById('queryForm');
+    const input = document.getElementById('queryInput');
+    const resultsDiv = document.getElementById('results');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      resultsDiv.innerHTML = '<p>Searching...</p>';
+
+      const response = await fetch('/search', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ query: input.value })
+      });
+
+      const data = await response.json();
+      resultsDiv.innerHTML = '';
+
+      if (data.results.length === 0) {
+        resultsDiv.innerHTML = '<p>No results found.</p>';
+      } else {
+        data.results.forEach(business => {
+          const card = document.createElement('div');
+          card.className = 'result-card';
+          card.innerHTML = `
+            <h3>${business.name}</h3>
+            <p><strong>Category:</strong> ${business.category}</p>
+            <p><strong>Location:</strong> ${business.location}</p>
+            <p><strong>Description:</strong> ${business.description}</p>
+          `;
+          resultsDiv.appendChild(card);
+        });
+        if (data.follow_up) {
+          const followUp = document.createElement('div');
+          followUp.className = 'follow-up';
+          followUp.textContent = data.follow_up;
+          resultsDiv.appendChild(followUp);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
